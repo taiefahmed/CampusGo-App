@@ -28,8 +28,8 @@ class AuthService extends ChangeNotifier {
     required String university,
   }) async {
     // 10 digit ID check
-    if (studentId.length != 10) {
-      return 'Student ID অবশ্যই ১০ সংখ্যার হতে হবে';
+    if (studentId.length != 11) {
+      return 'Student ID Must 11 Digit';
     }
     try {
       final result = await _auth.createUserWithEmailAndPassword(

@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/job_model.dart';
 import '../../services/job_service.dart';
-import '../../utils/call_helper.dart';
 
 class JobScreen extends StatefulWidget {
   const JobScreen({super.key});
@@ -15,7 +14,7 @@ class JobScreen extends StatefulWidget {
 
 class _JobScreenState extends State<JobScreen> {
   final JobService _jobService = JobService();
-  String _selectedFilter = 'সব';
+  String _selectedFilter = 'All';
 
   void _showAddJobDialog() {
     final titleController = TextEditingController();
@@ -46,7 +45,7 @@ class _JobScreenState extends State<JobScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Job Post করো',
+                  'Job Post',
                   style: GoogleFonts.poppins(
                       fontSize: 18, fontWeight: FontWeight.bold),
                 ),
@@ -55,17 +54,17 @@ class _JobScreenState extends State<JobScreen> {
                     titleController, 'Job Title', Icons.work),
                 const SizedBox(height: 12),
                 _buildTextField(
-                    companyController, 'Company/Shop নাম', Icons.business),
+                    companyController, 'Company/Shop Name', Icons.business),
                 const SizedBox(height: 12),
                 _buildTextField(
                     locationController, 'Location', Icons.location_on),
                 const SizedBox(height: 12),
                 _buildTextField(
-                    salaryController, 'বেতন (টাকা/মাস)', Icons.attach_money,
+                    salaryController, 'Salary (money/month)', Icons.attach_money,
                     keyboardType: TextInputType.number),
                 const SizedBox(height: 12),
                 _buildTextField(
-                    descController, 'কাজের বিবরণ', Icons.description),
+                    descController, 'Job Description', Icons.description),
                 const SizedBox(height: 12),
                 _buildTextField(
                     phoneController, 'Phone Number', Icons.phone,
@@ -125,7 +124,7 @@ class _JobScreenState extends State<JobScreen> {
                       if (mounted) Navigator.pop(context);
                     },
                     child: Text(
-                      'Post করো',
+                      'Post ',
                       style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontWeight: FontWeight.w600),
@@ -189,7 +188,7 @@ class _JobScreenState extends State<JobScreen> {
         onPressed: _showAddJobDialog,
         backgroundColor: const Color(0xFFDC2626),
         icon: const Icon(Icons.add, color: Colors.white),
-        label: Text('Job Post করো',
+        label: Text('Job Post',
             style: GoogleFonts.poppins(color: Colors.white)),
       ),
       body: Column(
@@ -201,7 +200,7 @@ class _JobScreenState extends State<JobScreen> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children:
-                ['সব', 'Part-time', 'Freelance', 'Internship']
+                ['All', 'Part-time', 'Freelance', 'Internship']
                     .map((filter) {
                   final isSelected = _selectedFilter == filter;
                   return Padding(
@@ -240,7 +239,7 @@ class _JobScreenState extends State<JobScreen> {
           // Job List
           Expanded(
             child: StreamBuilder<List<JobModel>>(
-              stream: _selectedFilter == 'সব'
+              stream: _selectedFilter == 'All'
                   ? _jobService.getJobs()
                   : _jobService.getJobsByType(_selectedFilter),
               builder: (context, snapshot) {
@@ -255,11 +254,11 @@ class _JobScreenState extends State<JobScreen> {
                         const Icon(Icons.work_off,
                             size: 64, color: Colors.grey),
                         const SizedBox(height: 16),
-                        Text('কোনো job নেই',
+                        Text('No Job',
                             style:
                             GoogleFonts.poppins(color: Colors.grey)),
                         const SizedBox(height: 8),
-                        Text('প্রথম job post করো!',
+                        Text('Post the first job!',
                             style: GoogleFonts.poppins(
                                 fontSize: 12, color: Colors.grey)),
                       ],
@@ -358,7 +357,7 @@ class _JobScreenState extends State<JobScreen> {
                                   size: 14,
                                   color: Color(0xFF16A34A)),
                               Text(
-                                '৳${job.salary}/মাস',
+                                '৳${job.salary}/Month',
                                 style: GoogleFonts.poppins(
                                   fontSize: 12,
                                   color: const Color(0xFF16A34A),
@@ -376,16 +375,7 @@ class _JobScreenState extends State<JobScreen> {
                                       color: Colors.grey)),
                               const Spacer(),
                               GestureDetector(
-                                onTap: () =>
-                                    CallHelper.makeCall(context, job.phone),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFDC2626),
-                                    borderRadius:
-                                    BorderRadius.circular(8),
-                                  ),
                                   child: Text('Apply',
                                       style: GoogleFonts.poppins(
                                           color: Colors.white,

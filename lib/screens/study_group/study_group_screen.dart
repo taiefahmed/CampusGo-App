@@ -153,7 +153,7 @@ class _StudyGroupScreenState extends State<StudyGroupScreen> {
         onPressed: _showCreateGroupDialog,
         backgroundColor: const Color(0xFFD97706),
         icon: const Icon(Icons.add, color: Colors.white),
-        label: Text('Group বানাও',
+        label: Text('Group Create',
             style: GoogleFonts.poppins(color: Colors.white)),
       ),
       body: StreamBuilder<List<StudyGroupModel>>(
@@ -169,7 +169,7 @@ class _StudyGroupScreenState extends State<StudyGroupScreen> {
                 children: [
                   const Icon(Icons.group, size: 64, color: Colors.grey),
                   const SizedBox(height: 16),
-                  Text('কোনো group নেই',
+                  Text('No Group',
                       style: GoogleFonts.poppins(color: Colors.grey)),
                 ],
               ),
@@ -347,7 +347,7 @@ class _StudyGroupScreenState extends State<StudyGroupScreen> {
                               color: const Color(0xFFD97706).withOpacity(0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text('তোমার Group',
+                            child: Text('Your Group',
                                 style: GoogleFonts.poppins(
                                     fontSize: 12,
                                     color: const Color(0xFFD97706))),

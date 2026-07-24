@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/auth_service.dart';
+import '../../theme/app_theme.dart'; // path na mille bolo, thik kore dibo
 
 class StudentRegisterScreen extends StatefulWidget {
   const StudentRegisterScreen({super.key});
@@ -10,7 +11,8 @@ class StudentRegisterScreen extends StatefulWidget {
   State<StudentRegisterScreen> createState() => _StudentRegisterScreenState();
 }
 
-class _StudentRegisterScreenState extends State<StudentRegisterScreen> {
+class _StudentRegisterScreenState extends State<StudentRegisterScreen>
+    with SingleTickerProviderStateMixin {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -32,20 +34,44 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> {
     'RUET',
   ];
 
+  late final AnimationController _animController;
+  late final Animation<double> _fadeAnim;
+  late final Animation<Offset> _slideAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    )..forward();
+    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
+    _slideAnim = Tween<Offset>(
+      begin: const Offset(0, 0.12),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic));
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _studentIdController.dispose();
+    super.dispose();
+  }
+
   Future<void> _register() async {
     if (_nameController.text.isEmpty ||
         _emailController.text.isEmpty ||
         _passwordController.text.isEmpty ||
         _studentIdController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('সব field পূরণ করো')),
-      );
+      _showSnack('সব field পূরণ করো', isError: true);
       return;
     }
-    if (_studentIdController.text.length != 10) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Student ID অবশ্যই ১০ সংখ্যার হতে হবে')),
-      );
+    if (_studentIdController.text.length != 11) {
+      _showSnack('Student ID অবশ্যই ১১ সংখ্যার হতে হবে', isError: true);
       return;
     }
     setState(() => _isLoading = true);
@@ -58,182 +84,248 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> {
       university: _selectedUniversity,
     );
     setState(() => _isLoading = false);
-    if (error != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error)),
-      );
+    if (!mounted) return;
+
+    if (error != null) {
+      _showSnack(error, isError: true);
+      return;
     }
+
+    _showSnack('Registration সফল হয়েছে! এখন Login করো', isError: false);
+    Navigator.of(context).pop();
+  }
+
+  void _showSnack(String msg, {required bool isError}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: isError ? Colors.red.shade400 : AppTheme.green,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF1E3A8A),
-              Color(0xFF2563EB),
-              Color(0xFF3B82F6),
-            ],
-          ),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new,
+              color: Color(0xFF1A1A1A), size: 18),
+          onPressed: () => Navigator.pop(context),
         ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              children: [
-                // Back Button
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.arrow_back_ios,
-                          color: Colors.white),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: FadeTransition(
+            opacity: _fadeAnim,
+            child: SlideTransition(
+              position: _slideAnim,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: AppTheme.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    Text(
-                      'Student Registration',
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    child: const Icon(Icons.school,
+                        color: AppTheme.primary, size: 36),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Student Registration',
+                    style: GoogleFonts.poppins(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF1A1A1A),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'তোমার Student Account বানাও',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+
+                  _sectionLabel('Personal Info'),
+                  const SizedBox(height: 12),
+                  _buildField(_nameController, 'Full Name', 'Enter your full name',
+                      Icons.person_outline),
+                  const SizedBox(height: 16),
+                  _buildField(_emailController, 'Email', 'Enter your email',
+                      Icons.email_outlined,
+                      type: TextInputType.emailAddress),
+                  const SizedBox(height: 24),
+
+                  _sectionLabel('Academic Info'),
+                  const SizedBox(height: 12),
+                  Text(
+                    'University',
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF1A1A1A),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: _selectedUniversity,
+                    style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
+                    icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade400),
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.account_balance,
+                          color: Colors.grey.shade400, size: 20),
+                      filled: true,
+                      fillColor: const Color(0xFFF6F7FB),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide:
+                        const BorderSide(color: AppTheme.primary, width: 1.5),
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                // Icon
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    shape: BoxShape.circle,
+                    items: _universities
+                        .map((u) => DropdownMenuItem(value: u, child: Text(u)))
+                        .toList(),
+                    onChanged: (val) => setState(() => _selectedUniversity = val!),
                   ),
-                  child: const Icon(Icons.school,
-                      color: Colors.white, size: 40),
-                ),
-                const SizedBox(height: 24),
-                // Form Card
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
+                  const SizedBox(height: 16),
+
+                  Text(
+                    'Student ID (11 digit)',
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF1A1A1A),
+                    ),
                   ),
-                  child: Column(
-                    children: [
-                      _buildField(_nameController, 'পুরো নাম',
-                          Icons.person_outline),
-                      const SizedBox(height: 16),
-                      // University Dropdown
-                      DropdownButtonFormField<String>(
-                        value: _selectedUniversity,
-                        decoration: InputDecoration(
-                          labelText: 'University',
-                          prefixIcon: const Icon(Icons.account_balance,
-                              color: Color(0xFF2563EB)),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                                color: Color(0xFF2563EB), width: 2),
-                          ),
-                          filled: true,
-                          fillColor: const Color(0xFFF0F4FF),
-                        ),
-                        items: _universities
-                            .map((u) => DropdownMenuItem(
-                            value: u, child: Text(u)))
-                            .toList(),
-                        onChanged: (val) =>
-                            setState(() => _selectedUniversity = val!),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _studentIdController,
+                    keyboardType: TextInputType.number,
+                    maxLength: 11,
+                    style: GoogleFonts.poppins(fontSize: 14),
+                    decoration: InputDecoration(
+                      hintText: 'Enter your student ID',
+                      hintStyle:
+                      GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade400),
+                      prefixIcon: Icon(Icons.badge_outlined,
+                          color: Colors.grey.shade400, size: 20),
+                      filled: true,
+                      fillColor: const Color(0xFFF6F7FB),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                      counterText: '${_studentIdController.text.length}/11',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
                       ),
-                      const SizedBox(height: 16),
-                      // Student ID
-                      TextField(
-                        controller: _studentIdController,
-                        keyboardType: TextInputType.number,
-                        maxLength: 10,
-                        decoration: InputDecoration(
-                          labelText: 'Student ID (১০ সংখ্যা)',
-                          prefixIcon: const Icon(Icons.badge_outlined,
-                              color: Color(0xFF2563EB)),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                                color: Color(0xFF2563EB), width: 2),
-                          ),
-                          filled: true,
-                          fillColor: const Color(0xFFF0F4FF),
-                          counterText: '${_studentIdController.text.length}/10',
-                        ),
-                        onChanged: (val) => setState(() {}),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide:
+                        const BorderSide(color: AppTheme.primary, width: 1.5),
                       ),
-                      const SizedBox(height: 16),
-                      _buildField(_emailController, 'Email',
-                          Icons.email_outlined,
-                          type: TextInputType.emailAddress),
-                      const SizedBox(height: 16),
-                      // Password
-                      TextField(
-                        controller: _passwordController,
-                        obscureText: _obscurePassword,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          prefixIcon: const Icon(Icons.lock_outlined,
-                              color: Color(0xFF2563EB)),
-                          suffixIcon: IconButton(
-                            icon: Icon(_obscurePassword
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                                color: const Color(0xFF2563EB)),
-                            onPressed: () => setState(() =>
-                            _obscurePassword = !_obscurePassword),
-                          ),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                                color: Color(0xFF2563EB), width: 2),
-                          ),
-                          filled: true,
-                          fillColor: const Color(0xFFF0F4FF),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 52,
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : _register,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2563EB),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                          ),
-                          child: _isLoading
-                              ? const CircularProgressIndicator(
-                              color: Colors.white)
-                              : Text(
-                            'Register',
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
+                    onChanged: (val) => setState(() {}),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 24),
+
+                  _sectionLabel('Security'),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Password',
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF1A1A1A),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: _obscurePassword,
+                    style: GoogleFonts.poppins(fontSize: 14),
+                    decoration: InputDecoration(
+                      hintText: 'Enter your password',
+                      hintStyle:
+                      GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade400),
+                      prefixIcon: Icon(Icons.lock_outline,
+                          color: Colors.grey.shade400, size: 20),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: Colors.grey.shade400,
+                          size: 20,
+                        ),
+                        onPressed: () =>
+                            setState(() => _obscurePassword = !_obscurePassword),
+                      ),
+                      filled: true,
+                      fillColor: const Color(0xFFF6F7FB),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide:
+                        const BorderSide(color: AppTheme.primary, width: 1.5),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 54,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _register,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primary,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2.4,
+                        ),
+                      )
+                          : Text(
+                        'Register',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                ],
+              ),
             ),
           ),
         ),
@@ -241,28 +333,59 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> {
     );
   }
 
+  Widget _sectionLabel(String text) {
+    return Text(
+      text,
+      style: GoogleFonts.poppins(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: AppTheme.primary,
+        letterSpacing: 0.5,
+      ),
+    );
+  }
+
   Widget _buildField(
       TextEditingController controller,
       String label,
+      String hint,
       IconData icon, {
         TextInputType type = TextInputType.text,
       }) {
-    return TextField(
-      controller: controller,
-      keyboardType: type,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon, color: const Color(0xFF2563EB)),
-        border:
-        OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide:
-          const BorderSide(color: Color(0xFF2563EB), width: 2),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF1A1A1A),
+          ),
         ),
-        filled: true,
-        fillColor: const Color(0xFFF0F4FF),
-      ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          keyboardType: type,
+          style: GoogleFonts.poppins(fontSize: 14),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade400),
+            prefixIcon: Icon(icon, color: Colors.grey.shade400, size: 20),
+            filled: true,
+            fillColor: const Color(0xFFF6F7FB),
+            contentPadding: const EdgeInsets.symmetric(vertical: 16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

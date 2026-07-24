@@ -8,8 +8,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:io';
 import '../../models/book_model.dart';
 import '../../services/book_service.dart';
-import '../../utils/call_helper.dart';
-
 class BookScreen extends StatefulWidget {
   const BookScreen({super.key});
 
@@ -38,7 +36,7 @@ class _BookScreenState extends State<BookScreen> {
     final authorController = TextEditingController();
     final priceController = TextEditingController();
     final phoneController = TextEditingController();
-    String selectedCondition = 'ভালো';
+    String selectedCondition = 'Good';
     XFile? selectedImage;
 
     showModalBottomSheet(
@@ -58,7 +56,7 @@ class _BookScreenState extends State<BookScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Book বিক্রি করো',
+                Text('Book Sell',
                     style: GoogleFonts.poppins(
                         fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
@@ -97,7 +95,7 @@ class _BookScreenState extends State<BookScreen> {
                         const Icon(Icons.add_photo_alternate,
                             size: 48, color: Colors.grey),
                         const SizedBox(height: 8),
-                        Text('Book এর ছবি যোগ করো',
+                        Text('Book Picture Add',
                             style: GoogleFonts.poppins(
                                 color: Colors.grey)),
                       ],
@@ -106,12 +104,12 @@ class _BookScreenState extends State<BookScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                _buildTextField(titleController, 'Book এর নাম', Icons.book),
+                _buildTextField(titleController, 'Book Name', Icons.book),
                 const SizedBox(height: 12),
-                _buildTextField(authorController, 'লেখকের নাম', Icons.person),
+                _buildTextField(authorController, 'Writer Name', Icons.person),
                 const SizedBox(height: 12),
                 _buildTextField(
-                  priceController, 'দাম (টাকা)', Icons.attach_money,
+                  priceController, 'Price (Money)', Icons.attach_money,
                   keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 12),
@@ -123,14 +121,14 @@ class _BookScreenState extends State<BookScreen> {
                 DropdownButtonFormField<String>(
                   value: selectedCondition,
                   decoration: InputDecoration(
-                    labelText: 'অবস্থা',
+                    labelText: 'Condition',
                     prefixIcon: const Icon(Icons.star_outline),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12)),
                     filled: true,
                     fillColor: Colors.grey[100],
                   ),
-                  items: ['নতুনের মতো', 'ভালো', 'মোটামুটি']
+                  items: ['New', 'Good', 'Midlevel']
                       .map((c) =>
                       DropdownMenuItem(value: c, child: Text(c)))
                       .toList(),
@@ -182,7 +180,7 @@ class _BookScreenState extends State<BookScreen> {
                       await _bookService.addBook(book);
                       if (mounted) Navigator.pop(context);
                     },
-                    child: Text('Post করো',
+                    child: Text('Post ',
                         style: GoogleFonts.poppins(
                             color: Colors.white,
                             fontWeight: FontWeight.w600)),
@@ -219,9 +217,9 @@ class _BookScreenState extends State<BookScreen> {
 
   Color _conditionColor(String condition) {
     switch (condition) {
-      case 'নতুনের মতো':
+      case 'New':
         return const Color(0xFF16A34A);
-      case 'ভালো':
+      case 'Good':
         return const Color(0xFF2563EB);
       default:
         return const Color(0xFFD97706);
@@ -242,7 +240,7 @@ class _BookScreenState extends State<BookScreen> {
         onPressed: _showAddBookDialog,
         backgroundColor: const Color(0xFF16A34A),
         icon: const Icon(Icons.add, color: Colors.white),
-        label: Text('Book বেচো',
+        label: Text('Book Sell',
             style: GoogleFonts.poppins(color: Colors.white)),
       ),
       body: StreamBuilder<List<BookModel>>(
@@ -258,7 +256,7 @@ class _BookScreenState extends State<BookScreen> {
                 children: [
                   const Icon(Icons.menu_book, size: 64, color: Colors.grey),
                   const SizedBox(height: 16),
-                  Text('কোনো book নেই',
+                  Text('No Book',
                       style: GoogleFonts.poppins(color: Colors.grey)),
                 ],
               ),
@@ -340,7 +338,7 @@ class _BookScreenState extends State<BookScreen> {
                                     style: GoogleFonts.poppins(
                                         fontSize: 12,
                                         color: Colors.grey)),
-                                Text('বিক্রেতা: ${book.sellerName}',
+                                Text('Seller: ${book.sellerName}',
                                     style: GoogleFonts.poppins(
                                         fontSize: 11,
                                         color: Colors.grey)),
@@ -377,11 +375,6 @@ class _BookScreenState extends State<BookScreen> {
                                 ),
                               ),
                               const SizedBox(height: 6),
-                              CallHelper.callButton(
-                                context: context,
-                                phone: book.phone,
-                                color: const Color(0xFF16A34A),
-                              ),
                             ],
                           ),
                         ],

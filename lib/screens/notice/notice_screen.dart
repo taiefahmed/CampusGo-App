@@ -14,23 +14,23 @@ class NoticeScreen extends StatefulWidget {
 
 class _NoticeScreenState extends State<NoticeScreen> {
   final NoticeService _noticeService = NoticeService();
-  String _selectedFilter = 'সব';
+  String _selectedFilter = 'All';
 
   final List<String> _categories = [
-    'সব',
-    'পরীক্ষা',
-    'ক্লাস',
-    'ইভেন্ট',
-    'অন্যান্য',
+    'All',
+    'Exam',
+    'Class',
+    'Event',
+    'Other',
   ];
 
   Color _categoryColor(String category) {
     switch (category) {
-      case 'পরীক্ষা':
+      case 'Exam':
         return const Color(0xFFDC2626);
-      case 'ক্লাস':
+      case 'Class':
         return const Color(0xFF2563EB);
-      case 'ইভেন্ট':
+      case 'Event':
         return const Color(0xFF16A34A);
       default:
         return const Color(0xFF0891B2);
@@ -39,11 +39,11 @@ class _NoticeScreenState extends State<NoticeScreen> {
 
   IconData _categoryIcon(String category) {
     switch (category) {
-      case 'পরীক্ষা':
+      case 'Exam':
         return Icons.assignment;
-      case 'ক্লাস':
+      case 'Class':
         return Icons.class_;
-      case 'ইভেন্ট':
+      case 'Event':
         return Icons.event;
       default:
         return Icons.notifications;
@@ -52,16 +52,16 @@ class _NoticeScreenState extends State<NoticeScreen> {
 
   String _timeAgo(DateTime dateTime) {
     final diff = DateTime.now().difference(dateTime);
-    if (diff.inDays > 0) return '${diff.inDays} দিন আগে';
-    if (diff.inHours > 0) return '${diff.inHours} ঘণ্টা আগে';
-    if (diff.inMinutes > 0) return '${diff.inMinutes} মিনিট আগে';
-    return 'এখনই';
+    if (diff.inDays > 0) return '${diff.inDays} Days ago';
+    if (diff.inHours > 0) return '${diff.inHours} Hours ago';
+    if (diff.inMinutes > 0) return '${diff.inMinutes} Minutes ago';
+    return 'Now';
   }
 
   void _showAddNoticeDialog() {
     final titleController = TextEditingController();
     final descController = TextEditingController();
-    String selectedCategory = 'অন্যান্য';
+    String selectedCategory = 'Other';
 
     showModalBottomSheet(
       context: context,
@@ -83,7 +83,7 @@ class _NoticeScreenState extends State<NoticeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Notice দাও',
+                  'Notice',
                   style: GoogleFonts.poppins(
                       fontSize: 18, fontWeight: FontWeight.bold),
                 ),
@@ -91,7 +91,7 @@ class _NoticeScreenState extends State<NoticeScreen> {
                 TextField(
                   controller: titleController,
                   decoration: InputDecoration(
-                    labelText: 'Notice এর বিষয়',
+                    labelText: 'Notice Subject',
                     prefixIcon: const Icon(Icons.title),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12)),
@@ -104,7 +104,7 @@ class _NoticeScreenState extends State<NoticeScreen> {
                   controller: descController,
                   maxLines: 4,
                   decoration: InputDecoration(
-                    labelText: 'বিস্তারিত লেখো',
+                    labelText: 'Write in detail.',
                     prefixIcon: const Icon(Icons.description),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12)),
@@ -123,7 +123,7 @@ class _NoticeScreenState extends State<NoticeScreen> {
                     filled: true,
                     fillColor: Colors.grey[100],
                   ),
-                  items: ['পরীক্ষা', 'ক্লাস', 'ইভেন্ট', 'অন্যান্য']
+                  items: ['Exam', 'Class', 'Event', 'Other']
                       .map((c) =>
                       DropdownMenuItem(value: c, child: Text(c)))
                       .toList(),
@@ -164,7 +164,7 @@ class _NoticeScreenState extends State<NoticeScreen> {
                       if (mounted) Navigator.pop(context);
                     },
                     child: Text(
-                      'Post করো',
+                      'Post ',
                       style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontWeight: FontWeight.w600),
@@ -199,7 +199,7 @@ class _NoticeScreenState extends State<NoticeScreen> {
         onPressed: _showAddNoticeDialog,
         backgroundColor: const Color(0xFF0891B2),
         icon: const Icon(Icons.add, color: Colors.white),
-        label: Text('Notice দাও',
+        label: Text('Notice ',
             style: GoogleFonts.poppins(color: Colors.white)),
       ),
       body: Column(
@@ -248,7 +248,7 @@ class _NoticeScreenState extends State<NoticeScreen> {
           // Notice List
           Expanded(
             child: StreamBuilder<List<NoticeModel>>(
-              stream: _selectedFilter == 'সব'
+              stream: _selectedFilter == 'All'
                   ? _noticeService.getNotices()
                   : _noticeService.getNoticesByCategory(_selectedFilter),
               builder: (context, snapshot) {
@@ -263,11 +263,11 @@ class _NoticeScreenState extends State<NoticeScreen> {
                         const Icon(Icons.notifications_off,
                             size: 64, color: Colors.grey),
                         const SizedBox(height: 16),
-                        Text('কোনো notice নেই',
+                        Text('No Notice',
                             style:
                             GoogleFonts.poppins(color: Colors.grey)),
                         const SizedBox(height: 8),
-                        Text('প্রথম notice দাও!',
+                        Text('Give first notice.!',
                             style: GoogleFonts.poppins(
                                 fontSize: 12, color: Colors.grey)),
                       ],

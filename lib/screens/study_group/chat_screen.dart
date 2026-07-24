@@ -115,12 +115,12 @@ class _ChatScreenState extends State<ChatScreen> {
                             size: 64, color: Colors.grey),
                         const SizedBox(height: 16),
                         Text(
-                          'কোনো message নেই',
+                          'No Message',
                           style: GoogleFonts.poppins(
                               color: Colors.grey),
                         ),
                         Text(
-                          'প্রথম message পাঠাও!',
+                          'Send the first message!',
                           style: GoogleFonts.poppins(
                               color: Colors.grey, fontSize: 12),
                         ),
@@ -172,7 +172,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: TextField(
                     controller: _messageController,
                     decoration: InputDecoration(
-                      hintText: 'Message লেখো...',
+                      hintText: 'Message Write...',
                       hintStyle: GoogleFonts.poppins(
                           color: Colors.grey),
                       border: OutlineInputBorder(
@@ -214,7 +214,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 size: 64, color: Colors.grey),
             const SizedBox(height: 16),
             Text(
-              'Chat দেখতে Group এ Join করো',
+              'Join the group to watch the chat',
               style: GoogleFonts.poppins(
                   color: Colors.grey,
                   fontWeight: FontWeight.w600),

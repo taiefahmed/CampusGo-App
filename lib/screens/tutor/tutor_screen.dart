@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/tutor_model.dart';
 import '../../services/tutor_service.dart';
-import '../../utils/call_helper.dart';
 
 class TutorScreen extends StatefulWidget {
   const TutorScreen({super.key});
@@ -39,17 +38,17 @@ class _TutorScreenState extends State<TutorScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Tutor হিসেবে যোগ দাও',
+            Text('Join as a Tutor',
                 style: GoogleFonts.poppins(
                     fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
-            _buildTextField(nameController, 'তোমার নাম', Icons.person),
+            _buildTextField(nameController, 'Your Name', Icons.person),
             const SizedBox(height: 12),
             _buildTextField(subjectController, 'Subject', Icons.book),
             const SizedBox(height: 12),
             _buildTextField(locationController, 'Location', Icons.location_on),
             const SizedBox(height: 12),
-            _buildTextField(rateController, 'ঘণ্টায় কত টাকা?',
+            _buildTextField(rateController, 'How much is it per hour?',
                 Icons.attach_money,
                 keyboardType: TextInputType.number),
             const SizedBox(height: 12),
@@ -116,7 +115,7 @@ class _TutorScreenState extends State<TutorScreen> {
       backgroundColor: const Color(0xFFF0F4FF),
       appBar: AppBar(
         backgroundColor: const Color(0xFF2563EB),
-        title: Text('Tutor খোঁজো',
+        title: Text('Tutor Find',
             style: GoogleFonts.poppins(
                 color: Colors.white, fontWeight: FontWeight.bold)),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -125,7 +124,7 @@ class _TutorScreenState extends State<TutorScreen> {
         onPressed: _showAddTutorDialog,
         backgroundColor: const Color(0xFF2563EB),
         icon: const Icon(Icons.add, color: Colors.white),
-        label: Text('Tutor হও',
+        label: Text('Tutor',
             style: GoogleFonts.poppins(color: Colors.white)),
       ),
       body: Column(
@@ -137,7 +136,7 @@ class _TutorScreenState extends State<TutorScreen> {
               controller: _searchController,
               onChanged: (val) => setState(() => _searchQuery = val),
               decoration: InputDecoration(
-                hintText: 'Subject দিয়ে খোঁজো...',
+                hintText: 'Search by subject...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -165,7 +164,7 @@ class _TutorScreenState extends State<TutorScreen> {
                         const Icon(Icons.person_search,
                             size: 64, color: Colors.grey),
                         const SizedBox(height: 16),
-                        Text('কোনো tutor পাওয়া যায়নি',
+                        Text('No tutor found',
                             style: GoogleFonts.poppins(color: Colors.grey)),
                       ],
                     ),
@@ -251,17 +250,14 @@ class _TutorCard extends StatelessWidget {
                       color: const Color(0xFF16A34A))),
               const SizedBox(height: 8),
               GestureDetector(
-                onTap: () => CallHelper.makeCall(context, tutor.phone),
-                child: Container(
+                  child: Container(
                   padding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: const Color(0xFF2563EB),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text('Contact',
-                      style: GoogleFonts.poppins(
-                          color: Colors.white, fontSize: 12)),
+
                 ),
               ),
             ],

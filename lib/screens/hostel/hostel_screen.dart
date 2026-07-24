@@ -4,8 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/hostel_model.dart';
 import '../../services/hostel_service.dart';
-import '../../utils/call_helper.dart';
-
 class HostelScreen extends StatefulWidget {
   const HostelScreen({super.key});
 
@@ -15,7 +13,7 @@ class HostelScreen extends StatefulWidget {
 
 class _HostelScreenState extends State<HostelScreen> {
   final HostelService _hostelService = HostelService();
-  String _selectedFilter = 'সব';
+  String _selectedFilter = 'All';
 
   void _showAddHostelDialog() {
     final nameController = TextEditingController();
@@ -24,7 +22,7 @@ class _HostelScreenState extends State<HostelScreen> {
     final facilitiesController = TextEditingController();
     final phoneController = TextEditingController();
     String selectedType = 'Hostel';
-    String selectedGender = 'যেকোনো';
+    String selectedGender = 'Any';
 
     showModalBottomSheet(
       context: context,
@@ -46,26 +44,26 @@ class _HostelScreenState extends State<HostelScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Hostel/Mess যোগ করো',
+                  'Hostel/Mess Add',
                   style: GoogleFonts.poppins(
                       fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
                 _buildTextField(
-                    nameController, 'Hostel/Mess এর নাম', Icons.home),
+                    nameController, 'Hostel/Mess Name', Icons.home),
                 const SizedBox(height: 12),
                 _buildTextField(
                     locationController, 'Address', Icons.location_on),
                 const SizedBox(height: 12),
                 _buildTextField(
                   rentController,
-                  'মাসিক ভাড়া (টাকা)',
+                  'মMonthly Cost (Taka)',
                   Icons.attach_money,
                   keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 12),
                 _buildTextField(facilitiesController,
-                    'সুযোগ সুবিধা (WiFi, AC, খাবার...)', Icons.list),
+                    'Facilities(Wi-Fi, AC, food...)', Icons.list),
                 const SizedBox(height: 12),
                 _buildTextField(
                   phoneController,
@@ -78,7 +76,7 @@ class _HostelScreenState extends State<HostelScreen> {
                 DropdownButtonFormField<String>(
                   value: selectedType,
                   decoration: InputDecoration(
-                    labelText: 'ধরন',
+                    labelText: 'Type',
                     prefixIcon: const Icon(Icons.home_work),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12)),
@@ -103,7 +101,7 @@ class _HostelScreenState extends State<HostelScreen> {
                     filled: true,
                     fillColor: Colors.grey[100],
                   ),
-                  items: ['যেকোনো', 'ছেলে', 'মেয়ে']
+                  items: ['Any', 'Boy', 'Girl']
                       .map((g) => DropdownMenuItem(value: g, child: Text(g)))
                       .toList(),
                   onChanged: (val) =>
@@ -146,7 +144,7 @@ class _HostelScreenState extends State<HostelScreen> {
                       if (mounted) Navigator.pop(context);
                     },
                     child: Text(
-                      'Post করো',
+                      'Post Now',
                       style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontWeight: FontWeight.w600),
@@ -199,7 +197,7 @@ class _HostelScreenState extends State<HostelScreen> {
         onPressed: _showAddHostelDialog,
         backgroundColor: const Color(0xFF9333EA),
         icon: const Icon(Icons.add, color: Colors.white),
-        label: Text('যোগ করো',
+        label: Text('Add',
             style: GoogleFonts.poppins(color: Colors.white)),
       ),
       body: Column(
@@ -208,7 +206,7 @@ class _HostelScreenState extends State<HostelScreen> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
-              children: ['সব', 'Hostel', 'Mess'].map((filter) {
+              children: ['All', 'Hostel', 'Mess'].map((filter) {
                 final isSelected = _selectedFilter == filter;
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
@@ -246,7 +244,7 @@ class _HostelScreenState extends State<HostelScreen> {
           // Hostel List
           Expanded(
             child: StreamBuilder<List<HostelModel>>(
-              stream: _selectedFilter == 'সব'
+              stream: _selectedFilter == 'All'
                   ? _hostelService.getHostels()
                   : _hostelService.getHostelsByType(_selectedFilter),
               builder: (context, snapshot) {
@@ -261,7 +259,7 @@ class _HostelScreenState extends State<HostelScreen> {
                         const Icon(Icons.home_work,
                             size: 64, color: Colors.grey),
                         const SizedBox(height: 16),
-                        Text('কোনো hostel/mess নেই',
+                        Text('There is no mess.',
                             style:
                             GoogleFonts.poppins(color: Colors.grey)),
                       ],
@@ -358,7 +356,7 @@ class _HostelScreenState extends State<HostelScreen> {
                                 ),
                               ),
                               Text(
-                                '৳${hostel.rent.toInt()}/মাস',
+                                '৳${hostel.rent.toInt()}/Month',
                                 style: GoogleFonts.poppins(
                                   fontWeight: FontWeight.bold,
                                   color: const Color(0xFF9333EA),
@@ -404,8 +402,6 @@ class _HostelScreenState extends State<HostelScreen> {
                                       fontSize: 11, color: Colors.grey)),
                               const Spacer(),
                               GestureDetector(
-                                onTap: () => CallHelper.makeCall(
-                                    context, hostel.phone),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 16, vertical: 8),
